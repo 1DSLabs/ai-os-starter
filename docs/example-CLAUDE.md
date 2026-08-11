@@ -28,4 +28,5 @@ Concise, candid, and helpful. Name the decision, owner, and next step. Raise que
 - Keep this folder out of public repositories and shared drives unless you've checked what's in it.
 - For work that depends on a process, rule, term, prior decision, voice, or template, start from `Knowledge_Base/INDEX.md` and read the relevant files in `Knowledge_Base/`.
 - Ask when the answer isn't written down. Don't guess at business facts, commitments, or process steps.
+- Follow `Knowledge_Base/principles/writing-rules.md` in anything written for a human to read.
 - Get the project owner's approval before promising a price, scope, or delivery date.

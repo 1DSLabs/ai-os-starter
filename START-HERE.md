@@ -55,6 +55,8 @@ Four fictional examples ship with the folder:
 
 Each starts with the same label block your files will use. The summary helps Claude decide whether to read it, while the body holds the useful detail. Delete the examples once your real files cover those jobs.
 
+One shipped file is not an example: `Knowledge_Base/principles/writing-rules.md` is a working writing standard that keeps Claude's drafts from sounding machine-made. It's on from the first session. Edit it to match how you write, or delete it if you'd rather not enforce one.
+
 Browse `Knowledge_Base/INDEX.md` to see every file grouped by type. Every category has a guide like `Knowledge_Base/principles/_README.md` that explains what belongs there.
 
 ## 4. Ask for real work

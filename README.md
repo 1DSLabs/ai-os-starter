@@ -69,6 +69,8 @@ Claude shows you its proposed files before `/ingest` writes them. You stay in co
 
 Each knowledge file covers one main idea and starts with a small label block. The labels give it a unique ID, title, type, summary, and update date. Details live in [the file-format reference](docs/file-format.md).
 
+One principle ships turned on: [writing rules](Knowledge_Base/principles/writing-rules.md) that keep Claude's drafts from sounding machine-made, whatever tone you set in `/setup`. Edit or delete it like any other file.
+
 | Folder | What belongs there |
 |---|---|
 | `Knowledge_Base/principles/` | Beliefs and standards that guide choices |

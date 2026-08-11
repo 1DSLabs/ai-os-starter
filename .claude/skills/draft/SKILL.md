@@ -10,9 +10,10 @@ Write work that sounds consistent with the business and stays grounded in its re
 ## Load the right context
 
 1. Read `CLAUDE.md` for audience, tone, always and never guidance, and hard rules.
-2. Read `Knowledge_Base/INDEX.md`.
-3. Choose files by title and summary, based on the task. Principles, templates, decisions, glossary entries, frameworks, and relevant records may all matter.
-4. Read the chosen files in full before drafting.
+2. Read `Knowledge_Base/principles/writing-rules.md` and apply it to every draft.
+3. Read `Knowledge_Base/INDEX.md`.
+4. Choose files by title and summary, based on the task. Principles, templates, decisions, glossary entries, frameworks, and relevant records may all matter.
+5. Read the chosen files in full before drafting.
 
 Use `python3 tools/find.py "<query>" --json` only when the index is missing, stale, or too large to scan. Treat every result as a candidate and inspect it before use. Don't accept the top keyword match without checking its meaning.
 

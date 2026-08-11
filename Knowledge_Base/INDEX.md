@@ -4,14 +4,15 @@ Every file you've saved, grouped by kind. Claude reads this to find things fast.
 
 Rebuild it any time with `python3 tools/index.py`.
 
-- Files: 4
-- Updated: 2026-08-11 10:06 UTC
+- Files: 5
+- Updated: 2026-08-11 11:13 UTC
 
 ## Principle
 
 | Name | What it covers | Owner | Updated |
 |---|---|---|---|
 | [How We Write (example)](principles/EXAMPLE-how-we-write.md) | Our writing is clear, warm, specific, and easy for a busy reader to act on. |  | 2026-08-11 |
+| [Writing Rules](principles/writing-rules.md) | The default writing standard for anything a human will read; bans the patterns that make writing sound like AI. |  | 2026-08-11 |
 
 ## Playbook
 
