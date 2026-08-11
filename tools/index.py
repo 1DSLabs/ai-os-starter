@@ -16,7 +16,9 @@ No installs required. Python 3 standard library only.
 import json
 import os
 import sys
+import tempfile
 from datetime import datetime, timezone
+from urllib.parse import quote
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -32,24 +34,33 @@ from kb import (  # noqa: E402
 VERSION = "3.0.0"
 
 
-def build(kb_root):
+def build(kb_root, skipped_paths=None):
     """Return (entries_by_id, problems)."""
     entries = {}
     seen_ids = {}
     problems = []
+    unreadable_paths = []
 
-    for path in iter_knowledge_files(kb_root):
+    for path in iter_knowledge_files(kb_root, unreadable_paths):
         rel = os.path.relpath(path, kb_root).replace(os.sep, "/")
         try:
             labels = read(path)
         except LabelBlockError as exc:
             problems.append("%s: %s" % (rel, exc))
             continue
+        except OSError as exc:
+            problems.append("%s: could not open it (%s)" % (rel, exc))
+            continue
 
         if not labels or not labels.get("id"):
+            if skipped_paths is not None:
+                skipped_paths.append(rel)
             continue
 
         entry_id = labels["id"]
+        if isinstance(entry_id, list):
+            problems.append("%s: `id` must be a single value, not a list" % rel)
+            continue
         if entry_id in seen_ids:
             problems.append(
                 "two files share the id '%s': %s and %s"
@@ -60,6 +71,10 @@ def build(kb_root):
         seen_ids[entry_id] = rel
         entries[entry_id] = {"path": rel, "labels": labels}
 
+    for path in sorted(set(unreadable_paths)):
+        rel = os.path.relpath(path, kb_root).replace(os.sep, "/")
+        problems.append("%s: could not read this folder" % rel)
+
     return entries, problems
 
 
@@ -69,13 +84,17 @@ def _cell(value):
     return text.replace("|", "\\|")
 
 
-def write_index(kb_root, entries):
+def render_index(entries, now=None):
+    """Build the complete INDEX.md contents in memory."""
     by_type = {}
     for entry_id, entry in entries.items():
         file_type = entry["labels"].get("type") or "other"
+        if not isinstance(file_type, str):
+            file_type = "other"
         by_type.setdefault(file_type, []).append(entry_id)
 
-    generated = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    now = now or datetime.now(timezone.utc)
+    generated = now.strftime("%Y-%m-%d %H:%M UTC")
 
     lines = [
         "# What's in this brain",
@@ -109,11 +128,14 @@ def write_index(kb_root, entries):
         for entry_id in sorted(by_type[file_type]):
             labels = entries[entry_id]["labels"]
             path = entries[entry_id]["path"]
+            name = labels.get("title") or entry_id
+            if labels.get("status") == "example":
+                name = "%s (example)" % name
             lines.append(
                 "| [%s](%s) | %s | %s | %s |"
                 % (
-                    _cell(labels.get("title") or entry_id),
-                    path,
+                    _cell(name),
+                    quote(path, safe="/"),
                     _cell(labels.get("summary", "")),
                     _cell(labels.get("owner", "")),
                     _cell(labels.get("updated", "")),
@@ -121,29 +143,71 @@ def write_index(kb_root, entries):
             )
         lines.append("")
 
-    with open(os.path.join(kb_root, "INDEX.md"), "w", encoding="utf-8") as handle:
-        handle.write("\n".join(lines))
+    return "\n".join(lines)
+
+
+def render_map(entries, now=None):
+    """Build the complete _index.json contents in memory."""
+    now = now or datetime.now(timezone.utc)
+    payload = {
+        "version": VERSION,
+        "generated": now.isoformat(),
+        "files": {k: v["path"] for k, v in sorted(entries.items())},
+    }
+    return json.dumps(payload, indent=2) + "\n"
+
+
+def _atomic_write(path, contents):
+    """Replace path with complete contents written beside it."""
+    directory = os.path.dirname(path)
+    prefix = ".%s." % os.path.basename(path)
+    temp_path = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            "w", encoding="utf-8", dir=directory, prefix=prefix, suffix=".tmp", delete=False
+        ) as handle:
+            temp_path = handle.name
+            handle.write(contents)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temp_path, path)
+        temp_path = None
+    finally:
+        if temp_path is not None:
+            try:
+                os.unlink(temp_path)
+            except FileNotFoundError:
+                pass
+
+
+def write_index(kb_root, entries):
+    """Build and atomically write INDEX.md."""
+    _atomic_write(os.path.join(kb_root, "INDEX.md"), render_index(entries))
 
 
 def write_map(kb_root, entries):
-    payload = {
-        "version": VERSION,
-        "generated": datetime.now(timezone.utc).isoformat(),
-        "files": {k: v["path"] for k, v in sorted(entries.items())},
-    }
-    with open(os.path.join(kb_root, "_index.json"), "w", encoding="utf-8") as handle:
-        json.dump(payload, handle, indent=2)
-        handle.write("\n")
+    """Build and atomically write _index.json."""
+    _atomic_write(os.path.join(kb_root, "_index.json"), render_map(entries))
 
 
 def main(argv):
     kb_root = resolve_kb_root(argv[1] if len(argv) > 1 else KB_DEFAULT)
-    entries, problems = build(kb_root)
+    skipped_paths = []
+    entries, problems = build(kb_root, skipped_paths)
 
-    write_map(kb_root, entries)
-    write_index(kb_root, entries)
+    now = datetime.now(timezone.utc)
+    map_contents = render_map(entries, now)
+    index_contents = render_index(entries, now)
+    _atomic_write(os.path.join(kb_root, "_index.json"), map_contents)
+    _atomic_write(os.path.join(kb_root, "INDEX.md"), index_contents)
 
-    print("Indexed %d file%s." % (len(entries), "" if len(entries) == 1 else "s"))
+    if skipped_paths:
+        print(
+            "Indexed %d files, skipped %d without labels: %s"
+            % (len(entries), len(skipped_paths), ", ".join(skipped_paths))
+        )
+    else:
+        print("Indexed %d file%s." % (len(entries), "" if len(entries) == 1 else "s"))
     print("Wrote %s/INDEX.md and %s/_index.json" % (kb_root, kb_root))
 
     if problems:

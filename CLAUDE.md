@@ -1,6 +1,6 @@
 # [Business name]
 
-> New here? Type `/setup` in Claude Code and answer one question at a time. See `docs/example-CLAUDE.md` for a completed example.
+<!-- New here? Type `/setup` in Claude Code and answer one question at a time. See `docs/example-CLAUDE.md` for a completed example. -->
 
 ## What we do
 
@@ -28,6 +28,6 @@
 
 - Never put real customer or employee personal data into these files. That includes names, contact information, account numbers, health details, and financial details.
 - Keep this folder out of public repositories and shared drives unless you've checked what's in it.
-- Read the relevant files in `Knowledge_Base/` before doing work that depends on a process, rule, term, or prior decision. Start from `Knowledge_Base/INDEX.md` to find them.
+- For work that depends on a process, rule, term, prior decision, voice, or template, start from `Knowledge_Base/INDEX.md` and read the relevant files in `Knowledge_Base/`.
 - Ask when the answer isn't written down. Don't guess at business facts, commitments, or process steps.
 - [Add any legal, approval, pricing, security, or brand rules that can't be bent.]

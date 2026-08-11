@@ -21,7 +21,7 @@ description: Provide a valid starting point for a new local Claude skill. Use wh
 ---
 ```
 
-The `name` must match the new folder name. The `description` should say what the skill does and when Claude should use it.
+The `name` must match the new folder name. The `description` should say what the skill does and when Claude should use it. Keep the frontmatter to `name` and `description` unless you know you need more.
 
 ## What goes in the instructions
 

@@ -1,5 +1,6 @@
 ---
 description: Set up the business identity and working rules in CLAUDE.md through a guided conversation.
+disable-model-invocation: true
 ---
 
 # Set up this business brain

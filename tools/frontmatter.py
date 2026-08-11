@@ -24,7 +24,7 @@ import re
 
 # The opening --- must be the very first thing in the file. Tolerates a UTF-8
 # BOM (Word and some editors add one) and Windows CRLF line endings.
-_BLOCK = re.compile(r"^﻿?---[ \t]*\r?\n(.*?)\r?\n---[ \t]*(?:\r?\n|$)", re.DOTALL)
+_DELIMITER = re.compile(r"---[ \t]*$")
 
 _INLINE_LIST = re.compile(r"^\[(.*)\]$")
 
@@ -66,14 +66,31 @@ def parse(text):
 
     Raises LabelBlockError when a block is present but malformed.
     """
-    match = _BLOCK.match(text)
-    if not match:
+    lines = text.splitlines()
+    if not lines:
         return None
 
+    first_line = lines[0]
+    if first_line.startswith("﻿"):
+        first_line = first_line[1:]
+    if not _DELIMITER.fullmatch(first_line):
+        return None
+
+    closing_index = None
+    for index, line in enumerate(lines[1:], start=1):
+        if _DELIMITER.fullmatch(line):
+            closing_index = index
+            break
+    if closing_index is None:
+        raise LabelBlockError(
+            "the label block starts on line 1 but has no closing `---` line"
+        )
+
     fields = {}
+    key_lines = {}
     pending_key = None
 
-    for lineno, raw in enumerate(match.group(1).splitlines(), start=1):
+    for lineno, raw in enumerate(lines[1:closing_index], start=2):
         line = raw.translate(_SMART_QUOTES).replace("\t", "    ").rstrip()
 
         if not line.strip() or line.lstrip().startswith("#"):
@@ -87,9 +104,14 @@ def parse(text):
                     "line %d: found a list item (%s) before any label name"
                     % (lineno, line.strip())
                 )
-            fields.setdefault(pending_key, [])
-            if not isinstance(fields[pending_key], list):
+            if fields[pending_key] == "":
                 fields[pending_key] = []
+            elif not isinstance(fields[pending_key], list):
+                raise LabelBlockError(
+                    "line %d: `%s` already has a single value on line %d, "
+                    "so it can't also have a list"
+                    % (lineno, pending_key, key_lines[pending_key])
+                )
             fields[pending_key].append(_strip_quotes(bullet.group(1)))
             continue
 
@@ -103,9 +125,15 @@ def parse(text):
         key = key.strip()
         if not key:
             raise LabelBlockError('line %d: missing a label name before the colon' % lineno)
+        if key in fields:
+            raise LabelBlockError(
+                "duplicate key `%s` on line %d (first set on line %d)"
+                % (key, lineno, key_lines[key])
+            )
 
         value = value.strip()
         pending_key = key
+        key_lines[key] = lineno
 
         if not value:
             # Either a key whose list follows on the next lines, or an empty value.

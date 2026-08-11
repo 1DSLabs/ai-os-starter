@@ -16,13 +16,19 @@ Create a faithful playbook from the user's real process.
 
 If the index is missing or stale, scan the label blocks in the relevant `Knowledge_Base/` folders by hand before deciding what already exists.
 
+Files marked `status: example` show the format only. Never treat them as real policy, coverage, or an update target. If an example is the only match for a real question, say no real file covers it yet and offer to create one.
+
 Learn the process name, purpose, trigger, owner role, inputs, steps, handoffs, exceptions, output, and definition of done. Ask one focused question at a time for any missing detail that changes how someone would perform the work. Don't invent steps or turn an assumption into a rule.
 
 Keep personal names, contact details, account details, and other sensitive values out of the playbook. Replace them with role-based or descriptive placeholders and tell the user what kind of information was replaced.
 
+## Show the draft and get approval
+
+Before creating or updating any file, show the user the full draft or a faithful summary that includes every proposed section, step, exception, and open gap. Ask for a clear yes. Don't create, edit, move, or delete any file before that yes.
+
 ## Write the playbook
 
-Create one Markdown file in `Knowledge_Base/playbooks/`. Use a short lowercase filename joined with dashes. Begin with this label structure:
+After approval, create one Markdown file in `Knowledge_Base/playbooks/`. Use a short lowercase filename joined with dashes. Begin with this label structure:
 
 ```yaml
 ---
@@ -52,14 +58,14 @@ Write steps as clear actions in the order they happen. Keep the user's terminolo
 
 ## Finish cleanly
 
-From the repository root, try these commands:
+Check for Python 3 (`python3`, or `python`/`py` on Windows). From the repository root, try the matching form of these commands:
 
 ```bash
 python3 tools/index.py
 python3 tools/check.py
 ```
 
-If both commands run, fix any problem caused by the playbook and rerun the checks until they pass.
+If both commands run, fix problems caused by the new or updated playbook, then rerun both. Report pre-existing problems without changing unrelated files unless the user asks. Say the full check passed only when it did.
 
 If Python is missing or either command fails for any reason, don't leave the user at a raw error. Update `Knowledge_Base/INDEX.md` by hand from the knowledge files, explain that the automated check was skipped, and carry on.
 

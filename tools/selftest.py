@@ -16,6 +16,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 TOOLS_DIR = Path(__file__).resolve().parent
 REPO_ROOT = TOOLS_DIR.parent
@@ -124,6 +125,20 @@ class FrontmatterTests(unittest.TestCase):
         with self.assertRaisesRegex(LabelBlockError, "missing a colon"):
             parse("---\nid broken-entry\n---\n")
 
+    def test_duplicate_key_names_key_and_line(self):
+        with self.assertRaisesRegex(
+            LabelBlockError, r"duplicate key `id` on line 3"
+        ):
+            parse("---\nid: first\nid: second\n---\n")
+
+    def test_unterminated_block_has_clear_error(self):
+        with self.assertRaisesRegex(LabelBlockError, "no closing"):
+            parse("---\nid: never-closed\n")
+
+    def test_list_cannot_follow_scalar_on_same_key(self):
+        with self.assertRaisesRegex(LabelBlockError, "single value"):
+            parse("---\ntags: planning\n  - delivery\n---\n")
+
     def test_scalar_values_stay_strings(self):
         labels = parse("---\nupdated: 2026-08-11\nowner: Yes\n---\n")
         self.assertEqual(labels["updated"], "2026-08-11")
@@ -144,6 +159,32 @@ class KnowledgeHelperTests(unittest.TestCase):
 
         self.assertEqual(found, ["keep.md"])
 
+    def test_file_iterator_matches_md_case_insensitively(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            kb_root = Path(temp_dir, "Knowledge_Base")
+            write_knowledge(kb_root, "principles", "UPPER.MD")
+
+            found = [Path(path).name for path in kb.iter_knowledge_files(str(kb_root))]
+
+        self.assertEqual(found, ["UPPER.MD"])
+
+    def test_file_iterator_collects_walk_errors(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            kb_root = Path(temp_dir, "Knowledge_Base")
+            kb_root.mkdir()
+            locked = str(kb_root / "locked")
+            unreadable = []
+
+            def failed_walk(root, onerror=None):
+                onerror(PermissionError(13, "Permission denied", locked))
+                return iter(())
+
+            with mock.patch.object(kb.os, "walk", side_effect=failed_walk):
+                found = list(kb.iter_knowledge_files(str(kb_root), unreadable))
+
+        self.assertEqual(found, [])
+        self.assertEqual(unreadable, [locked])
+
 
 class IndexTests(unittest.TestCase):
     def test_builds_markdown_and_json_indexes(self):
@@ -158,8 +199,19 @@ class IndexTests(unittest.TestCase):
                 summary="How the team writes for customers.",
             )
 
+            real_replace = os.replace
+            replacements = []
+
+            def record_replace(source, destination):
+                self.assertEqual(Path(source).parent, Path(destination).parent)
+                self.assertTrue(Path(source).is_file())
+                replacements.append(Path(destination).name)
+                real_replace(source, destination)
+
             output = io.StringIO()
-            with contextlib.redirect_stdout(output):
+            with mock.patch.object(
+                index_tool.os, "replace", side_effect=record_replace
+            ), contextlib.redirect_stdout(output):
                 result = index_tool.main(["index.py", str(kb_root)])
 
             self.assertEqual(result, 0)
@@ -176,6 +228,52 @@ class IndexTests(unittest.TestCase):
                 payload["files"], {"clear-writing": "principles/clear-writing.md"}
             )
             self.assertIn("Indexed 1 file.", output.getvalue())
+            self.assertCountEqual(replacements, ["INDEX.md", "_index.json"])
+
+    def test_index_marks_examples_and_url_encodes_links(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            kb_root = Path(temp_dir, "Knowledge_Base")
+            write_knowledge(
+                kb_root,
+                "principles",
+                "file name#one.md",
+                entry_id="spacing-guide",
+                title="Spacing # Guide",
+                extra_labels=["status: example"],
+            )
+
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                result = index_tool.main(["index.py", str(kb_root)])
+            contents = (kb_root / "INDEX.md").read_text(encoding="utf-8")
+
+        self.assertEqual(result, 0)
+        self.assertIn("Indexed 1 file.", output.getvalue())
+        self.assertIn(
+            "[Spacing # Guide (example)](principles/file%20name%23one.md)",
+            contents,
+        )
+
+    def test_index_reports_files_without_labels_or_id(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            kb_root = Path(temp_dir, "Knowledge_Base")
+            target_dir = kb_root / "principles"
+            target_dir.mkdir(parents=True)
+            (target_dir / "no-block.md").write_text("# No labels\n", encoding="utf-8")
+            (target_dir / "no-id.md").write_text(
+                "---\ntitle: No Id\n---\n", encoding="utf-8"
+            )
+
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                result = index_tool.main(["index.py", str(kb_root)])
+
+        self.assertEqual(result, 0)
+        self.assertIn(
+            "Indexed 0 files, skipped 2 without labels: "
+            "principles/no-block.md, principles/no-id.md",
+            output.getvalue(),
+        )
 
     def test_duplicate_ids_are_reported(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -246,6 +344,63 @@ class CheckTests(unittest.TestCase):
         self.assertTrue(any("which holds `principle` files" in p for p in problems))
         self.assertTrue(any("its type is `playbook`" in p for p in problems))
 
+    def test_list_valued_id_is_a_clear_problem(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            kb_root = Path(temp_dir, "Knowledge_Base")
+            target_dir = kb_root / "principles"
+            target_dir.mkdir(parents=True)
+            target = target_dir / "list-id.md"
+            target.write_text(
+                "---\n"
+                "id:\n"
+                "  - first-id\n"
+                "title: List Id\n"
+                "type: principle\n"
+                "summary: A test file.\n"
+                "updated: 2026-08-11\n"
+                "---\n",
+                encoding="utf-8",
+            )
+
+            problems, _, entry_id = check_tool.check_file(str(kb_root), str(target))
+
+        self.assertIsNone(entry_id)
+        self.assertTrue(
+            any("`id` must be a single value, not a list" in p for p in problems)
+        )
+
+    def test_bad_calendar_date_is_a_problem(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            kb_root = Path(temp_dir, "Knowledge_Base")
+            target = write_knowledge(
+                kb_root, "principles", "bad-date.md", updated="2026-02-30"
+            )
+
+            problems, _, _ = check_tool.check_file(str(kb_root), str(target))
+
+        self.assertTrue(
+            any("real YYYY-MM-DD calendar date" in p for p in problems)
+        )
+
+    def test_walk_errors_are_reported_as_problems(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            kb_root = Path(temp_dir, "Knowledge_Base")
+            kb_root.mkdir()
+            locked = str(kb_root / "locked")
+
+            def failed_iterator(root, unreadable_paths=None):
+                unreadable_paths.append(locked)
+                return iter(())
+
+            output = io.StringIO()
+            with mock.patch.object(
+                check_tool, "iter_knowledge_files", side_effect=failed_iterator
+            ), contextlib.redirect_stdout(output):
+                result = check_tool.main(["check.py", str(kb_root)])
+
+        self.assertEqual(result, 1)
+        self.assertIn("problem: locked: could not read this folder", output.getvalue())
+
     def test_shipped_examples_pass(self):
         kb_root = REPO_ROOT / "Knowledge_Base"
         expected = {
@@ -256,6 +411,8 @@ class CheckTests(unittest.TestCase):
         }
         examples = sorted(kb_root.glob("*/EXAMPLE-*.md"))
 
+        if not examples:
+            self.skipTest("No shipped example files remain.")
         self.assertEqual({path.name for path in examples}, expected)
         for path in examples:
             with self.subTest(path=path.relative_to(REPO_ROOT)):
@@ -310,6 +467,72 @@ class FindTests(unittest.TestCase):
         self.assertEqual(payload["query"], "Refund Requests")
         self.assertEqual(payload["results"][0]["id"], "refund-requests")
         self.assertIsInstance(payload["results"][0]["score"], int)
+
+    def test_unicode_title_is_found(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            kb_root = Path(temp_dir, "Knowledge_Base")
+            write_knowledge(
+                kb_root,
+                "principles",
+                "unicode.md",
+                entry_id="contract-renewal",
+                title="契約 更新",
+            )
+
+            entries = find_tool.load_files(str(kb_root))
+            results = find_tool.search("契約", entries)
+
+        self.assertEqual(results[0]["id"], "contract-renewal")
+
+    def test_list_valued_scalar_fields_do_not_break_loading(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            kb_root = Path(temp_dir, "Knowledge_Base")
+            target_dir = kb_root / "principles"
+            target_dir.mkdir(parents=True)
+            (target_dir / "bad-id.md").write_text(
+                "---\nid: [one, two]\ntitle: Bad Id\n---\n", encoding="utf-8"
+            )
+            (target_dir / "bad-title.md").write_text(
+                "---\n"
+                "id: bad-title\n"
+                "title: [One, Two]\n"
+                "summary: [Three, Four]\n"
+                "---\n",
+                encoding="utf-8",
+            )
+
+            entries = find_tool.load_files(str(kb_root))
+            results = find_tool.search("body", entries)
+
+        self.assertEqual([entry["id"] for entry in entries], ["bad-title"])
+        self.assertEqual(entries[0]["title"], "")
+        self.assertIsInstance(results, list)
+
+    def test_top_below_one_prints_usage(self):
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            result = find_tool.main(["find.py", "refund", "--top", "0"])
+
+        self.assertEqual(result, 2)
+        self.assertEqual(
+            output.getvalue().strip(),
+            'Usage: python3 tools/find.py "what you are looking for" [--top N]',
+        )
+
+
+class SelftestBehaviorTests(unittest.TestCase):
+    def test_shipped_examples_test_skips_when_none_exist(self):
+        with tempfile.TemporaryDirectory() as temp_dir, mock.patch(
+            "%s.REPO_ROOT" % __name__, Path(temp_dir)
+        ):
+            case = CheckTests("test_shipped_examples_pass")
+            result = unittest.TestResult()
+            case.run(result)
+
+        self.assertEqual(result.errors, [])
+        self.assertEqual(result.failures, [])
+        self.assertEqual(len(result.skipped), 1)
+        self.assertIn("No shipped example files remain", result.skipped[0][1])
 
 
 if __name__ == "__main__":

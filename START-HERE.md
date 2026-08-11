@@ -95,6 +95,6 @@ Run them from this folder's top level. They need Python 3 and no extra packages.
 
 ## As you grow
 
-Keep shared principles, terms, and company-wide rules in one common folder. When a location or brand develops distinct processes, give it a clearly named area and keep only its specific material there. Duplicate as little as possible, and state which rule wins when shared and local guidance differ.
+Keep shared principles, terms, and company-wide rules together. When a location or brand develops distinct material, keep the type folder first, then add a location or brand subfolder, such as `Knowledge_Base/playbooks/brand-a/`. The tools already handle this nesting. Duplicate as little as possible, and state which rule wins when shared and local guidance differ.
 
 Treat this folder like your books. Keep it private, review it before sharing, and never store real customer or employee names, contact information, account numbers, health details, or financial details in it.

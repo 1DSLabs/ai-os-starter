@@ -36,11 +36,15 @@ STOPWORDS = {
 
 
 def words(text):
-    return [w for w in re.split(r"[^a-z0-9]+", str(text).lower()) if w]
+    return re.findall(r"\w+", str(text).casefold(), flags=re.UNICODE)
 
 
 def useful_words(text):
-    return [w for w in words(text) if w not in STOPWORDS and len(w) > 1]
+    return [
+        w
+        for w in words(text)
+        if w not in STOPWORDS and (len(w) > 1 or not w.isascii())
+    ]
 
 
 def as_list(value):
@@ -49,6 +53,11 @@ def as_list(value):
     if isinstance(value, list):
         return [str(v) for v in value]
     return [str(value)]
+
+
+def as_text(value):
+    """Return one text value, leaving malformed list values for check.py."""
+    return value if isinstance(value, str) else ""
 
 
 def score_field(query_words, field_text, weight):
@@ -77,7 +86,7 @@ def load_files(kb_root):
             labels = read(path)
         except LabelBlockError:
             continue
-        if not labels or not labels.get("id"):
+        if not labels or not isinstance(labels.get("id"), str) or not labels["id"]:
             continue
         try:
             with open(path, "r", encoding="utf-8", errors="replace") as handle:
@@ -87,8 +96,8 @@ def load_files(kb_root):
         entries.append(
             {
                 "id": labels["id"],
-                "title": labels.get("title", ""),
-                "summary": labels.get("summary", ""),
+                "title": as_text(labels.get("title", "")),
+                "summary": as_text(labels.get("summary", "")),
                 "aliases": as_list(labels.get("aliases")),
                 "tags": as_list(labels.get("tags")),
                 "path": os.path.relpath(path, kb_root).replace(os.sep, "/"),
@@ -144,6 +153,9 @@ def main(argv):
             top = int(args[i + 1])
             del args[i : i + 2]
         except (IndexError, ValueError):
+            print('Usage: python3 tools/find.py "what you are looking for" [--top N]')
+            return 2
+        if top < 1:
             print('Usage: python3 tools/find.py "what you are looking for" [--top N]')
             return 2
 

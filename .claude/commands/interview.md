@@ -1,5 +1,6 @@
 ---
 description: Interview the owner one question at a time and turn new answers into labeled knowledge-base files.
+disable-model-invocation: true
 ---
 
 # Interview the owner
@@ -46,14 +47,14 @@ Keep the user's words where they carry voice or judgment. Don't invent facts or 
 
 ## Refresh and check
 
-From the repository root, try these commands:
+Check for Python 3 (`python3`, or `python`/`py` on Windows). From the repository root, try the matching form of these commands:
 
 ```bash
 python3 tools/index.py
 python3 tools/check.py
 ```
 
-If both commands run, fix problems caused by the new files, then rerun both until the check reports `All good`.
+If both commands run, fix problems caused by the new or updated files, then rerun both. Report pre-existing problems without changing unrelated files unless the user asks. Say `All good` only when the check reports it.
 
 If Python is missing or either command fails for any reason, don't leave the user at a raw error. Rebuild `Knowledge_Base/INDEX.md` by hand from every knowledge file's title and summary, tell the user the automated check was skipped, and carry on.
 

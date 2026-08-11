@@ -30,6 +30,8 @@ You need a [Claude account](https://claude.ai) on a paid plan. Claude Code comes
 
 Choose where you want to work: use the Claude desktop app on your computer, or use Claude Code on the web in your browser. Desktop keeps the folder on your machine; web needs no install and uses a private GitHub copy.
 
+If Claude Code on Windows asks for Git, install Git for Windows from [git-scm.com](https://git-scm.com).
+
 ## Install
 
 ### Path A: on your computer (Claude desktop app)
@@ -45,6 +47,7 @@ Choose where you want to work: use the Claude desktop app on your computer, or u
 2. On the [AI OS Starter repository](https://github.com/1DSLabs/ai-os-starter), choose **Use this template**, then **Create a new repository**. Name it, for example `my-business-brain`, and set it to **Private**. The private setting matters because your business is going in here.
 3. Go to [Claude Code on the web](https://claude.ai/code), sign in, connect your GitHub account, and open the repository you just created.
 4. Type `/setup`.
+5. When you finish a browser session, tell Claude to commit and push your work so it's saved to the repository.
 
 Don't fork the public repository for real business use because a fork of a public repository stays public; **Use this template** is the private path.
 
@@ -70,7 +73,7 @@ Each knowledge file covers one main idea and starts with a small label block. Th
 |---|---|
 | `Knowledge_Base/principles/` | Beliefs and standards that guide choices |
 | `Knowledge_Base/frameworks/` | Reusable ways to think through a problem |
-| `Knowledge_Base/models/` | Named concepts and mental models |
+| `Knowledge_Base/models/` | Named concepts, calculations, or mental models |
 | `Knowledge_Base/playbooks/` | Repeatable process steps |
 | `Knowledge_Base/templates/` | Reusable starting copy or structure |
 | `Knowledge_Base/decisions/` | Rules for recurring choices |
@@ -83,7 +86,7 @@ Each knowledge file covers one main idea and starts with a small label block. Th
 - Find missing labels, duplicate IDs, and misplaced files with `python3 tools/check.py`.
 - Search the knowledge files with `python3 tools/find.py "refund" --top 3`.
 
-There are no installs. The tools use Python 3, which is already on your Mac. On Windows, install Python from [python.org](https://www.python.org/downloads/) or skip the tools entirely. Everything works without them.
+The scripts need no extra packages. They use Python 3, which is already on your Mac. On Windows, install Python from [python.org](https://www.python.org/downloads/) or skip the tools entirely. Everything works without them.
 
 On Windows, use `python` (or `py`) instead of `python3` in these commands.
 
@@ -111,11 +114,11 @@ Yes. Put a reviewed copy in a private place your team can access, agree on who o
 
 ### What's the difference between a command and a skill?
 
-A command is something you start, such as `/ingest` or `/load`. A skill is a reusable method Claude can pick up when a task fits, such as drafting in your voice or capturing a process.
+Commands and skills are both packaged instructions. A command is something you type deliberately, such as `/ingest`. A skill is a method Claude can also pick up on its own when a task fits.
 
 ### How do I update to a newer version?
 
-Keep your filled `CLAUDE.md` and your own material in `Knowledge_Base/` and `_inbox/` safe. Download the new release into a separate folder, read its release notes, then copy your material over after reviewing any format changes. Don't overwrite your working folder without a backup.
+Before updating, back up your filled `CLAUDE.md`, your own material in `Knowledge_Base/` and `_inbox/`, and any skills or commands you created under `.claude/`. Download the new release into a separate folder, read its release notes, then copy your material over after reviewing any format changes. Don't overwrite your working folder without a backup.
 
 ## Who built this
 

@@ -49,6 +49,6 @@ Read the files needed for this work. Include `CLAUDE.md` and `Knowledge_Base/IND
 Check the result, fix failures, and report what changed.
 ```
 
-Keep the frontmatter to `name` and `description`. Put trigger wording in the description because Claude reads it before the body. Write body instructions as actions. Refer only to files that exist, and test every command the skill tells Claude to run.
+Keep the frontmatter to `name` and `description` unless you know you need more. Put trigger wording in the description because Claude reads it before the body. Write body instructions as actions. Refer only to files that exist, and test every command the skill tells Claude to run.
 
 Before finishing, confirm that the copy contains its skill instruction file, its folder and `name` match, its description explains both purpose and trigger, and every referenced path resolves from the repository root.

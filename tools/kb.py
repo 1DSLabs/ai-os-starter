@@ -70,14 +70,20 @@ def resolve_kb_root(candidate=KB_DEFAULT):
     )
 
 
-def iter_knowledge_files(kb_root):
-    """Yield every knowledge file under kb_root, skipping noise."""
-    for current, dirnames, filenames in os.walk(kb_root):
+def iter_knowledge_files(kb_root, unreadable_paths=None):
+    """Yield knowledge files and optionally collect folders os.walk cannot read."""
+    def collect_walk_error(error):
+        if unreadable_paths is not None:
+            unreadable_paths.append(error.filename or kb_root)
+
+    skip_files = {name.casefold() for name in SKIP_FILES}
+    for current, dirnames, filenames in os.walk(kb_root, onerror=collect_walk_error):
         dirnames[:] = sorted(d for d in dirnames if d not in SKIP_DIRS and not d.startswith("."))
         for name in sorted(filenames):
-            if not name.endswith(".md") or name in SKIP_FILES:
+            folded_name = name.casefold()
+            if not folded_name.endswith(".md") or folded_name in skip_files:
                 continue
-            if name.startswith("_README") or name.startswith("."):
+            if folded_name.startswith("_readme") or name.startswith("."):
                 continue
             yield os.path.join(current, name)
 

@@ -1,10 +1,12 @@
 # Knowledge file format
 
-Each file in `Knowledge_Base/` holds one useful idea. A short label block at the very top tells Claude what the file covers and where it belongs.
+Each knowledge file you create in `Knowledge_Base/` holds one useful idea. A short label block at the very top tells Claude what the file covers and where it belongs.
+
+Generated files (`Knowledge_Base/INDEX.md` and `Knowledge_Base/_index.json`) and folder guides named `_README.md` don't carry a label block.
 
 ## The label block
 
-Start every knowledge file with this shape:
+Start every knowledge file you create with this shape:
 
 ```yaml
 ---
@@ -49,7 +51,7 @@ The value of `type` must match the folder:
 |---|---|---|
 | `principle` | `Knowledge_Base/principles/` | Beliefs and standards that guide choices |
 | `framework` | `Knowledge_Base/frameworks/` | Reusable ways to think through a problem |
-| `model` | `Knowledge_Base/models/` | Named concepts and mental models |
+| `model` | `Knowledge_Base/models/` | Named concepts, calculations, or mental models |
 | `playbook` | `Knowledge_Base/playbooks/` | Repeatable steps for a process |
 | `template` | `Knowledge_Base/templates/` | Reusable starting copy or structure |
 | `decision` | `Knowledge_Base/decisions/` | Rules for making a recurring choice |
@@ -68,4 +70,3 @@ python3 tools/check.py
 ```
 
 The first command refreshes the index. The second reports missing labels, duplicate IDs, and files in the wrong folder.
-

@@ -11,7 +11,9 @@ No installs required. Python 3 standard library only.
 """
 
 import os
+import re
 import sys
+from datetime import date
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -26,8 +28,20 @@ from kb import (  # noqa: E402
 )
 
 REQUIRED = ("id", "title", "type", "summary", "updated")
+SINGLE_VALUE_FIELDS = REQUIRED + ("owner", "status", "source")
 TYPES = set(FOLDER_TYPES.values())
 LONG_FILE_LINES = 400
+DATE_PATTERN = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+
+
+def _is_calendar_date(value):
+    if not DATE_PATTERN.fullmatch(value):
+        return False
+    try:
+        date.fromisoformat(value)
+    except ValueError:
+        return False
+    return True
 
 
 def check_file(kb_root, path):
@@ -53,11 +67,19 @@ def check_file(kb_root, path):
             "starting and ending with a line of three dashes." % rel
         ], [], None
 
+    list_fields = set()
+    for field in SINGLE_VALUE_FIELDS:
+        if isinstance(labels.get(field), list):
+            list_fields.add(field)
+            problems.append(
+                "%s: `%s` must be a single value, not a list" % (rel, field)
+            )
+
     for field in REQUIRED:
-        if not labels.get(field):
+        if field not in list_fields and not labels.get(field):
             problems.append("%s: missing `%s` in the label block" % (rel, field))
 
-    file_type = labels.get("type")
+    file_type = None if "type" in list_fields else labels.get("type")
     if file_type and file_type not in TYPES:
         problems.append(
             "%s: `type: %s` isn't one I know. Use one of: %s"
@@ -72,7 +94,7 @@ def check_file(kb_root, path):
             "Move the file or change the type." % (rel, folder, expected, file_type)
         )
 
-    entry_id = labels.get("id")
+    entry_id = None if "id" in list_fields else labels.get("id")
     if entry_id:
         if entry_id != entry_id.lower() or " " in entry_id:
             problems.append(
@@ -80,9 +102,16 @@ def check_file(kb_root, path):
                 % (rel, entry_id)
             )
 
-    summary = labels.get("summary", "")
+    summary = "" if "summary" in list_fields else labels.get("summary", "")
     if summary and len(summary) > 200:
         suggestions.append("%s: the summary is long. One sentence works best." % rel)
+
+    updated = "" if "updated" in list_fields else labels.get("updated", "")
+    if updated and not _is_calendar_date(updated):
+        problems.append(
+            "%s: updated `%s` must be a real YYYY-MM-DD calendar date"
+            % (rel, updated)
+        )
 
     line_count = text.count("\n") + 1
     if line_count > LONG_FILE_LINES:
@@ -101,8 +130,9 @@ def main(argv):
     suggestions = []
     ids = {}
     count = 0
+    unreadable_paths = []
 
-    for path in iter_knowledge_files(kb_root):
+    for path in iter_knowledge_files(kb_root, unreadable_paths):
         count += 1
         file_problems, file_suggestions, entry_id = check_file(kb_root, path)
         problems.extend(file_problems)
@@ -111,6 +141,10 @@ def main(argv):
             rel = os.path.relpath(path, kb_root).replace(os.sep, "/")
             ids.setdefault(entry_id, []).append(rel)
 
+    for path in sorted(set(unreadable_paths)):
+        rel = os.path.relpath(path, kb_root).replace(os.sep, "/")
+        problems.append("%s: could not read this folder" % rel)
+
     for entry_id, paths in sorted(ids.items()):
         if len(paths) > 1:
             problems.append(
@@ -118,7 +152,7 @@ def main(argv):
                 % (entry_id, len(paths), ", ".join(paths))
             )
 
-    if count == 0:
+    if count == 0 and not problems:
         print("No knowledge files yet. Nothing to check.")
         print("Add some with `/ingest` or `/interview` in Claude Code.")
         return 0
