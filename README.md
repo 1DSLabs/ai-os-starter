@@ -124,4 +124,4 @@ Before updating, back up your filled `CLAUDE.md`, your own material in `Knowledg
 
 ## Who built this
 
-[1DS Collective](https://1dscollective.com) built AI OS Starter from the system we run our own agency on. We made this public so a business of any size can start with a useful structure.
+John Hyland, founder of [1DS Collective](https://1dscollective.com) and [AuthorityOS](https://authorityos.io), built AI OS Starter from the system ran at the 1DS family of companies. This was made public so a business of any size can start with a useful and scalable folder structure that is battle tested and optimized.
