@@ -1,6 +1,6 @@
 # Start here
 
-You've opened the right folder. Your first session has two jobs: tell Claude the basics about the business, then give it a little real material to organize.
+Whether you opened this folder on your computer or connected it through [claude.ai/code](https://claude.ai/code), the experience inside is the same. Your first session has two jobs: tell Claude the basics about the business, then give it a little real material to organize.
 
 ## 1. Set up the identity file
 
@@ -26,6 +26,8 @@ The conversation will feel like this:
 
 Claude continues one question at a time through team tone, always and never lists, and hard rules. It then fills `CLAUDE.md` with your answers. Read the result and change anything that doesn't sound right.
 
+Want to preview a completed identity file? See `docs/example-CLAUDE.md` for the fictional Northstar Studio version.
+
 ## 2. Add what you already know
 
 If you have useful documents, choose two or three to start. Good choices include a process guide, an FAQ, meeting notes, a policy, or a strong email example.
@@ -38,7 +40,7 @@ Remove personal data, then place copies in `_inbox/`. Type:
 
 Claude reads the source material and proposes a short file list, including a destination folder and one-line summary for each file. It stops there. Review the list, ask for changes if needed, and approve it when it looks right.
 
-After approval, Claude writes the files, refreshes the index, checks the labels when Python 3 is present, and tells you what changed. It keeps the owner's wording and calls out source details it replaced with placeholders.
+After approval, Claude writes the files, tries to refresh the index and check the labels, then tells you what changed. If the scripts can't run, it rebuilds the readable index by hand and carries on. It keeps the owner's wording and calls out source details it replaced with placeholders.
 
 If you have nothing written down yet, type `/interview` instead. Claude asks about the business basics, voice, processes, rules, and terms. It skips what your files already cover and asks one question at a time.
 

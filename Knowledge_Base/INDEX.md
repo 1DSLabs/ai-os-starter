@@ -5,7 +5,7 @@ Every file you've saved, grouped by kind. Claude reads this to find things fast.
 Rebuild it any time with `python3 tools/index.py`.
 
 - Files: 4
-- Updated: 2026-08-11 09:12 UTC
+- Updated: 2026-08-11 09:45 UTC
 
 ## Principle
 

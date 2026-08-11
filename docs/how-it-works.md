@@ -4,6 +4,8 @@ Claude starts with `CLAUDE.md`, which gives it the business identity, voice, and
 
 The Markdown files are the system. The Python tools are optional helpers for organizing and checking them.
 
+To avoid repeated prompts, the folder pre-approves its own four scripts in `.claude/settings.json` when the index rebuilds. Delete that file if you'd rather approve each run.
+
 ## Index
 
 Run `python3 tools/index.py` after adding or changing knowledge files. It reads their label blocks and writes two generated files:
@@ -11,7 +13,7 @@ Run `python3 tools/index.py` after adding or changing knowledge files. It reads 
 - `Knowledge_Base/INDEX.md` is a table a person or Claude can scan.
 - `Knowledge_Base/_index.json` maps each ID to its file path.
 
-The `/ingest` and `/interview` commands refresh the index after they write files when Python 3 is available.
+The `/ingest` and `/interview` commands try to refresh the index after they write files. If Python can't run or a script fails, they rebuild the readable index by hand and tell you the automated check was skipped.
 
 ## Check
 
@@ -27,5 +29,6 @@ Claude's `/load` command reads `Knowledge_Base/INDEX.md` first and chooses files
 
 ## No Python required
 
-You can create, read, and edit every file without running a script. If Python 3 isn't available, keep `Knowledge_Base/INDEX.md` current by hand. Follow the same sections and table columns already in the generated file.
+You can create, read, and edit every file without running a script. If Python can't run or a script fails, keep `Knowledge_Base/INDEX.md` current by hand. Follow the same sections and table columns already in the generated file.
 
+On Windows, use `python` (or `py`) instead of `python3` in these commands.

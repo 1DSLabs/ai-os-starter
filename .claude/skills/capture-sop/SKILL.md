@@ -52,17 +52,15 @@ Write steps as clear actions in the order they happen. Keep the user's terminolo
 
 ## Finish cleanly
 
-Check for Python with `command -v python3`.
-
-If Python is available, run these commands from the repository root:
+From the repository root, try these commands:
 
 ```bash
-python3 "tools/index.py"
-python3 "tools/check.py"
+python3 tools/index.py
+python3 tools/check.py
 ```
 
-Fix any problem caused by the playbook and rerun the checks until they pass.
+If both commands run, fix any problem caused by the playbook and rerun the checks until they pass.
 
-If Python isn't available, update `Knowledge_Base/INDEX.md` by hand from the knowledge files and explain that the automated check was skipped.
+If Python is missing or either command fails for any reason, don't leave the user at a raw error. Update `Knowledge_Base/INDEX.md` by hand from the knowledge files, explain that the automated check was skipped, and carry on.
 
 Report the file created or updated, the gaps that remain, and any sensitive details replaced with placeholders.

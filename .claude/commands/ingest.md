@@ -9,10 +9,14 @@ Turn the contents of `_inbox/` into small, useful files in `Knowledge_Base/`. Tr
 ## Read first
 
 1. Read `CLAUDE.md` for the business context and hard rules.
-2. Open `_inbox/README.md`, then inspect every other file in `_inbox/`.
+2. Open `_inbox/README.md`, then inspect every other file in `_inbox/`. Don't treat files in `_inbox/processed/` as new source material.
 3. Review `Knowledge_Base/INDEX.md` and any existing files that may overlap with the source material.
 
 If the inbox has no source files, say so and explain that the user can add documents, notes, transcripts, or plain-text exports there. Don't create knowledge from the inbox guide alone.
+
+Read each source directly when possible. If a file can't be read directly, use `textutil -convert txt -stdout "_inbox/README.md"` as the command pattern on a Mac, replacing `_inbox/README.md` with the source's resolved path and keeping the quotes. Word `.docx` files are the common case. On another system, or if conversion fails, ask the user to paste the text into the chat.
+
+Never skip an unreadable file. Before proposing any knowledge files, list every inbox file you couldn't read and say what the user needs to provide.
 
 ## Plan before writing
 
@@ -29,7 +33,7 @@ Break the source material into one idea per file. Classify each idea as one of t
 | glossary | `Knowledge_Base/glossary/` | Terms and their agreed meanings |
 | record | `Knowledge_Base/records/` | Factual history worth keeping |
 
-Propose a file list before changing anything. For every proposed file, show its folder, filename, and one-line summary. Call out material that should update an existing file instead of creating a duplicate.
+Propose a file list before changing anything. For every proposed file, show its folder, filename, and one-line summary. If a source's ideas already exist in the knowledge base, say so and propose updating the existing file instead of creating a near-duplicate.
 
 Replace any real person's name, contact details, or account details found in a source with a clear placeholder such as `[PERSON NAME]`, `[EMAIL]`, `[PHONE]`, or `[ACCOUNT NUMBER]`. Tell the user what kinds of details you replaced. Never repeat the original sensitive value in your message.
 
@@ -51,21 +55,21 @@ updated: YYYY-MM-DD
 ---
 ```
 
-Use the approved type, not the sample type shown above. Set `updated` to today's date in `YYYY-MM-DD` form. Add `owner`, `tags`, `aliases`, `status`, or `source` only when the source supports them. Keep IDs unique, lowercase, and joined with dashes. Use a short lowercase filename joined with dashes. Leave the original inbox files in place unless the user separately asks to move or delete them.
+Use the approved type, not the sample type shown above. Set `updated` to today's date in `YYYY-MM-DD` form. Add `owner`, `tags`, `aliases`, `status`, or `source` only when the source supports them. Keep IDs unique, lowercase, and joined with dashes. Use a short lowercase filename joined with dashes.
+
+After writing the approved knowledge files, offer to move the source files you processed into `_inbox/processed/` so a later `/ingest` doesn't read them again. Default to moving them, but respect a no and leave them in place. Create the folder if it doesn't exist before moving anything. Don't move unreadable files or sources that still need answers. If a filename already exists there, add a short date or number to the incoming filename instead of overwriting either source.
 
 ## Refresh and check
 
-Check for Python with `command -v python3`.
-
-If Python is available, run these commands from the repository root:
+From the repository root, try these commands:
 
 ```bash
-python3 "tools/index.py"
-python3 "tools/check.py"
+python3 tools/index.py
+python3 tools/check.py
 ```
 
-Fix problems caused by the new files, then rerun both commands until the check reports `All good`.
+If both commands run, fix problems caused by the new files, then rerun both until the check reports `All good`.
 
-If Python isn't available, rebuild `Knowledge_Base/INDEX.md` by hand from every knowledge file's title and summary. Tell the user that the manual index was rebuilt and the Python check was skipped.
+If Python is missing or either command fails for any reason, don't leave the user at a raw error. Rebuild `Knowledge_Base/INDEX.md` by hand from every knowledge file's title and summary, tell the user the automated check was skipped, and carry on.
 
 Finish with a short list of files created or updated, the details replaced with placeholders, and any unanswered gaps.

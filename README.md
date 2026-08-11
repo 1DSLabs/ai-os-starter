@@ -24,27 +24,33 @@ AI-OS-Starter/
 └── docs/                  References for file, skill, and tool behavior
 ```
 
+## Before you start
+
+You need a [Claude account](https://claude.ai) on a paid plan. Claude Code comes with Claude Pro and Max plans (and most Team plans).
+
+Choose where you want to work: use the Claude desktop app on your computer, or use Claude Code on the web in your browser. Desktop keeps the folder on your machine; web needs no install and uses a private GitHub copy.
+
 ## Install
 
-1. Download the ZIP without Git.
+### Path A: on your computer (Claude desktop app)
 
-   Open the [AI OS Starter repository](https://github.com/1DSLabs/ai-os-starter), choose **Code**, then choose **Download ZIP**. Unzip it anywhere you can find again. In the Claude Code desktop app, choose **Open folder** and select the unzipped folder.
+1. Download the [Claude desktop app](https://claude.ai/download) and sign in.
+2. Open the [AI OS Starter repository](https://github.com/1DSLabs/ai-os-starter), choose **Code**, then choose **Download ZIP**. Unzip it. The unzipped folder is named `ai-os-starter-main`; rename it to anything you like, such as `My Business Brain`.
+3. In the desktop app, open Claude Code and choose **Open folder**. Select the folder that contains `START-HERE.md`.
+4. Type `/setup`.
 
-2. Or clone it with Git.
+### Path B: in your browser (Claude Code on the web)
 
-   Open a terminal, paste this command, and press Enter:
+1. Create a free [GitHub account](https://github.com) if you don't have one.
+2. On the [AI OS Starter repository](https://github.com/1DSLabs/ai-os-starter), choose **Use this template**, then **Create a new repository**. Name it, for example `my-business-brain`, and set it to **Private**. The private setting matters because your business is going in here.
+3. Go to [Claude Code on the web](https://claude.ai/code), sign in, connect your GitHub account, and open the repository you just created.
+4. Type `/setup`.
 
-   ```bash
-   git clone https://github.com/1DSLabs/ai-os-starter.git "My Business Brain"
-   ```
+Don't fork the public repository for real business use because a fork of a public repository stays public; **Use this template** is the private path.
 
-   In the Claude Code desktop app, choose **Open folder** and select the new folder named My Business Brain.
+**Self-check:** Type `/` and look at the list. If you see `setup`, `ingest`, `interview`, and `load`, you're in the right place. If you don't, you opened the wrong folder; open the one containing `START-HERE.md`.
 
-3. Open an existing copy in the Claude Code desktop app.
-
-   Choose **Open folder** and select its top-level folder, the one containing `START-HERE.md`.
-
-For your 60-second first session, type `/setup`. Claude will ask one question at a time and fill in your business identity file with you.
+Already use Git? Run `git clone https://github.com/1DSLabs/ai-os-starter.git "My Business Brain"`, then open the new folder in the Claude desktop app.
 
 ## Your first 10 minutes
 
@@ -79,11 +85,11 @@ Each knowledge file covers one main idea and starts with a small label block. Th
 
 There are no installs. The tools use Python 3, which is already on your Mac. On Windows, install Python from [python.org](https://www.python.org/downloads/) or skip the tools entirely. Everything works without them.
 
+On Windows, use `python` (or `py`) instead of `python3` in these commands.
+
 ## Keep it private
 
-Your business goes in here, so treat the folder like your books. Keep the repository private if you push it anywhere, and review its contents before placing it on a shared drive.
-
-Don't add real customer or employee personal data. Leave out names, contact information, account numbers, health details, and financial details. Replace sensitive source details with placeholders before saving them.
+The content Claude reads is sent to Anthropic to generate responses, under your own Claude account's terms and settings. The folder itself is plain files on your computer or, on the web path, in your private GitHub repository, and 1DS Collective never sees any of it. Treat it like your books: keep the repository private, review it before sharing, and don't store real customer or employee names, contact information, account numbers, health details, or financial details.
 
 ## FAQ
 
@@ -97,7 +103,7 @@ Type `/interview`. Claude asks one question at a time and turns your answers int
 
 ### Does my data get uploaded anywhere?
 
-These files stay in the folder you choose unless you sync, share, or push that folder somewhere. When you use Claude Code, the content Claude reads is handled under the terms and settings of your Claude account. Check your current account settings and provider terms before adding confidential material.
+The content Claude reads is sent to Anthropic to generate responses, under your own Claude account's terms and settings. The folder itself is plain files on your computer or, on the web path, in your private GitHub repository. 1DS Collective never sees any of it.
 
 ### Can my team use it too?
 

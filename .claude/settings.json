@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 tools/index.py)",
+      "Bash(python3 tools/check.py)",
+      "Bash(python3 tools/selftest.py)",
+      "Bash(python3 tools/find.py:*)"
+    ]
+  }
+}

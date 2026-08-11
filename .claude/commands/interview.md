@@ -46,17 +46,15 @@ Keep the user's words where they carry voice or judgment. Don't invent facts or 
 
 ## Refresh and check
 
-Check for Python with `command -v python3`.
-
-If Python is available, run these commands from the repository root:
+From the repository root, try these commands:
 
 ```bash
-python3 "tools/index.py"
-python3 "tools/check.py"
+python3 tools/index.py
+python3 tools/check.py
 ```
 
-Fix problems caused by the new files, then rerun both commands until the check reports `All good`.
+If both commands run, fix problems caused by the new files, then rerun both until the check reports `All good`.
 
-If Python isn't available, rebuild `Knowledge_Base/INDEX.md` by hand from every knowledge file's title and summary. Tell the user that the manual index was rebuilt and the Python check was skipped.
+If Python is missing or either command fails for any reason, don't leave the user at a raw error. Rebuild `Knowledge_Base/INDEX.md` by hand from every knowledge file's title and summary, tell the user the automated check was skipped, and carry on.
 
 End by naming the files created or updated. Offer to continue with the next uncovered topic, one question at a time.

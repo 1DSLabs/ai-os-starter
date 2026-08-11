@@ -14,9 +14,9 @@ Write work that sounds consistent with the business and stays grounded in its re
 3. Choose files by title and summary, based on the task. Principles, templates, decisions, glossary entries, frameworks, and relevant records may all matter.
 4. Read the chosen files in full before drafting.
 
-Use `python3 "tools/find.py" "<query>" --json` only when the index is missing, stale, or too large to scan and Python is available. Treat every result as a candidate and inspect it before use. Don't accept the top keyword match without checking its meaning.
+Use `python3 tools/find.py "<query>" --json` only when the index is missing, stale, or too large to scan. Treat every result as a candidate and inspect it before use. Don't accept the top keyword match without checking its meaning.
 
-If Python isn't available and the index can't be used, scan the label blocks in the relevant `Knowledge_Base/` folders by hand. Choose files by title, summary, aliases, and meaning.
+When the index can't be used, Python may be missing or the search command may fail. In either case, don't stop at the error. Scan the label blocks in the relevant `Knowledge_Base/` folders by hand, then choose files by title, summary, aliases, and meaning.
 
 ## Draft
 
