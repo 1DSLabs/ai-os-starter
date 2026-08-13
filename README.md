@@ -2,11 +2,15 @@
 
 Write your business down once, then give Claude the context to do consistent work every time.
 
-## What this is
+## Why this exists
 
-AI OS Starter is a folder for the facts, processes, voice, rules, and examples that make your business yours. Claude reads those small files before it works, so each conversation starts with useful context instead of a blank page.
+Every new AI chat starts from zero. You re-explain who you serve, how you sound, and how the work gets done, then get answers that could belong to any business on your street.
 
-It works for any business. You don't need a new platform or anything beyond Claude Code, and the folder still works as plain Markdown if you skip every optional script.
+AI OS Starter fixes the zero. It gives your business a memory Claude reads before it works: your processes, your voice, your rules, your terms, each written down once as a small labeled file. Ask for a kickoff email and Claude reads your kickoff playbook, your writing principles, and your email template first, then drafts like someone who's worked for you for a year.
+
+Two beliefs drive the design. First, the model matters less than what it knows about you; the frontier models are now close enough that context is the real difference between generic output and yours. Second, writing the business down pays twice. Claude gets sharper every week, and you end up with the documented operation you always meant to build: easier to delegate, easier to onboard into, easier to one day sell.
+
+It works for any business, at any size, in any field. You need nothing beyond Claude Code, and the folder still works as plain Markdown if you skip every optional script.
 
 ## What you get
 
@@ -23,6 +27,20 @@ AI-OS-Starter/
 ├── tools/                 Optional Python helpers for index, checks, and search
 └── docs/                  References for file, skill, and tool behavior
 ```
+
+## How it works
+
+Four pieces do the work.
+
+**The identity file.** Claude reads `CLAUDE.md` at the start of every session, so your tone and your hard rules apply without being asked. `/setup` fills it in by asking you one question at a time.
+
+**The knowledge base.** `Knowledge_Base/` holds what you know, one idea per file. Each file carries a small label block (what it is, what it covers, when it changed), and a generated index lets you and Claude find the right file in seconds.
+
+**Commands** move knowledge in and out. `/ingest` turns documents you drop in `_inbox/` into labeled files and shows you the plan before writing anything. `/interview` builds the files from a conversation when little is written down. `/load` pulls the right files into a chat before real work.
+
+**Skills** make methods repeatable. `capture-sop` turns "here's how we do it" into a playbook while you talk. `draft` writes in your voice, grounded in your files. When you notice a task repeating, you add a skill for it.
+
+The compounding is the point. Every answer worth keeping becomes a file, and every file makes the next answer better.
 
 ## Before you start
 
@@ -64,6 +82,14 @@ Already use Git? Run `git clone https://github.com/1DSLabs/ai-os-starter.git "My
 3. Give Claude a real task, such as drafting an email or walking through a process. Watch it read the relevant files before it answers.
 
 Claude shows you its proposed files before `/ingest` writes them. You stay in control of what becomes part of the system.
+
+## How to use it week to week
+
+Give Claude real work from day one. When it asks about something that lives only in your head, answer, then let the answer become a file. That single habit builds the system.
+
+A useful rhythm: drop new material into `_inbox/` as it appears, run `/ingest` once a few pieces have collected, and skim `Knowledge_Base/INDEX.md` now and then to see what your business knows. When a file goes stale, edit it like any note. When a task repeats, turn it into a skill.
+
+Read `START-HERE.md` inside the folder for the full first-session walkthrough.
 
 ## How it stays organized
 
@@ -124,4 +150,4 @@ Before updating, back up your filled `CLAUDE.md`, your own material in `Knowledg
 
 ## Who built this
 
-John Hyland, founder of [1DS Collective](https://1dscollective.com) and [AuthorityOS](https://authorityos.io), built AI OS Starter from the system ran at the 1DS family of companies. This was made public so a business of any size can start with a useful and scalable folder structure that is battle tested and optimized.
+John Hyland, founder of [1DS Collective](https://1dscollective.com) and [AuthorityOS](https://authorityos.io), built AI OS Starter from the system run at the 1DS family of companies. This was made public so a business of any size can start with a useful and scalable folder structure that is battle tested and optimized.
